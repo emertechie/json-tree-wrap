@@ -283,14 +283,117 @@ describe('JsonTree', function() {
         });
     });
 
+    describe('Moving items', function() {
+        var json, rootWrapper, item2Wrapper;
+
+        beforeEach(function() {
+            json = {
+                items: [{
+                    name: 'item 1'
+                },{
+                    name: 'item 2',
+                    items: [{
+                        name: 'item 2 - 1'
+                    },{
+                        name: 'item 2 - 2'
+                    },{
+                        name: 'item 2 - 3'
+                    }]
+                }]
+            };
+            rootWrapper = jsonTree.wrap(json);
+            item2Wrapper = rootWrapper.get(1);
+        });
+
+        it('can move item up within same parent', function() {
+            item2Wrapper.move(2, 0);
+
+            assert.deepEqual(rootWrapper.unwrap(), {
+                items: [{
+                    name: 'item 1'
+                },{
+                    name: 'item 2',
+                    items: [{
+                        name: 'item 2 - 3'  // <-- moved up
+                    },{
+                        name: 'item 2 - 1'
+                    },{
+                        name: 'item 2 - 2'
+                    }]
+                }]
+            });
+        });
+
+        it('can move item down within same parent', function() {
+            item2Wrapper.move(1, 2);
+
+            assert.deepEqual(rootWrapper.unwrap(), {
+                items: [{
+                    name: 'item 1'
+                },{
+                    name: 'item 2',
+                    items: [{
+                        name: 'item 2 - 1'
+                    },{
+                        name: 'item 2 - 3'
+                    },{
+                        name: 'item 2 - 2'  // <-- moved down
+                    }]
+                }]
+            });
+        });
+
+        it('can move item from one parent to another', function() {
+
+            // Move root item at index 0 to item2 at index 1
+            rootWrapper.move(0, item2Wrapper, 1);
+
+            assert.deepEqual(rootWrapper.unwrap(), {
+                items: [{
+                    name: 'item 2',
+                    items: [{
+                        name: 'item 2 - 1'
+                    },{
+                        name: 'item 1'  // <-- moved here
+                    },{
+                        name: 'item 2 - 2'
+                    },{
+                        name: 'item 2 - 3'
+                    }]
+                }]
+            });
+        });
+
+        it('throws if attempt to move parent under itself', function() {
+            assert.throws(function() {
+                item2Wrapper.move(0, item2Wrapper, 1);
+            }, 'Cannot move an item under itself');
+
+            // Make sure nothing changed:
+            assert.deepEqual(rootWrapper.unwrap(), {
+                items: [{
+                    name: 'item 1'
+                },{
+                    name: 'item 2',
+                    items: [{
+                        name: 'item 2 - 1'
+                    },{
+                        name: 'item 2 - 2'
+                    },{
+                        name: 'item 2 - 3'
+                    }]
+                }]
+            });
+        });
+    });
+
     describe('Events', function() {
-        var added, removed, updated, moved;
+        var added, removed, moved;
         var options;
 
         beforeEach(function() {
             added = [];
             removed = [];
-            updated = [];
             moved = [];
 
             options = {
@@ -299,9 +402,6 @@ describe('JsonTree', function() {
                 },
                 onRemove: function (parent, index, item) {
                     removed.push({ parent: parent, index: index, item: item });
-                },
-                onUpdate: function (parent, index, item) {
-                    updated.push({ parent: parent, index: index, item: item });
                 },
                 onMove: function (oldParent, oldIndex, newParent, newIndex, item) {
                     moved.push({
@@ -406,117 +506,4 @@ describe('JsonTree', function() {
             });
         });
     });
-
-    describe('Moving items', function() {
-        var json, rootWrapper, item2Wrapper;
-
-        beforeEach(function() {
-            json = {
-                items: [{
-                    name: 'item 1'
-                },{
-                    name: 'item 2',
-                    items: [{
-                        name: 'item 2 - 1'
-                    },{
-                        name: 'item 2 - 2'
-                    },{
-                        name: 'item 2 - 3'
-                    }]
-                }]
-            };
-            rootWrapper = jsonTree.wrap(json);
-            item2Wrapper = rootWrapper.get(1);
-        });
-
-        it('can move item up', function() {
-            item2Wrapper.move(2, 0);
-
-            assert.deepEqual(rootWrapper.unwrap(), {
-                items: [{
-                    name: 'item 1'
-                },{
-                    name: 'item 2',
-                    items: [{
-                        name: 'item 2 - 3'  // <-- moved up
-                    },{
-                        name: 'item 2 - 1'
-                    },{
-                        name: 'item 2 - 2'
-                    }]
-                }]
-            });
-        });
-
-        it('can move item down', function() {
-            item2Wrapper.move(1, 2);
-
-            assert.deepEqual(rootWrapper.unwrap(), {
-                items: [{
-                    name: 'item 1'
-                },{
-                    name: 'item 2',
-                    items: [{
-                        name: 'item 2 - 1'
-                    },{
-                        name: 'item 2 - 3'
-                    },{
-                        name: 'item 2 - 2'  // <-- moved down
-                    }]
-                }]
-            });
-        });
-    });
-
-
-    /*
-    it('can parse empty json', function() {
-        var json = {};
-
-        var tree = jsonTree.parse(json);
-
-        assert.deepEqual(tree.items(0), {});
-    });
-
-    it('parses single root item', function() {
-        var json = {
-            name: 'root item'
-        };
-
-        var tree = jsonTree.parse(json);
-
-        assert.deepEqual(tree.items(0), json);
-    });
-
-    it('parses multiple root items', function() {
-        var json = [{
-            name: 'item 1'
-        },{
-            name: 'item 2'
-        }];
-
-        var tree = jsonTree.parse(json);
-
-        assert.deepEqual(tree.items(0), json);
-    });
-
-    it('parses multi level json', function() {
-        var json = [{
-            name: 'item 1',
-            items: [{
-                name: 'item 1 - 1'
-            },{
-                name: 'item 1 - 2'
-            }]
-        },{
-            name: 'item 2'
-        }];
-
-        var tree = jsonTree.parse(json);
-
-        assert.equal(tree.items(0), json);
-        assert.equal(tree.items(0), json);
-    });
-    */
-
 });
