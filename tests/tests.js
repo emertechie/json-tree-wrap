@@ -505,5 +505,62 @@ describe('JsonTree', function() {
                 }]);
             });
         });
+
+        describe('Move event', function() {
+            var json, rootWrapper, item2Wrapper;
+
+            beforeEach(function() {
+                json = {
+                    items: [{
+                        name: 'item 1'
+                    },{
+                        name: 'item 2',
+                        items: [{
+                            name: 'item 2 - 1'
+                        },{
+                            name: 'item 2 - 2'
+                        },{
+                            name: 'item 2 - 3'
+                        }]
+                    }]
+                };
+                rootWrapper = jsonTree.wrap(json, options);
+                item2Wrapper = rootWrapper.get(1);
+            });
+
+            it('notifies when item moved within same parent', function() {
+                item2Wrapper.move(2, 0);
+
+                var item2 = item2Wrapper.unwrap();
+
+                assert.deepEqual(moved, [{
+                    oldParent: item2,
+                    oldIndex: 2,
+                    newParent: item2,
+                    newIndex: 0,
+                    item: {
+                        name: 'item 2 - 3'
+                    }
+                }]);
+            });
+
+            it('notifies when item moved to different parent', function() {
+
+                // Move "Item 2 - 2" to the end
+                item2Wrapper.move(1, rootWrapper, 2);
+
+                console.log('root', rootWrapper.unwrap());
+
+                assert.deepEqual(moved, [{
+                    oldParent: item2Wrapper.unwrap(),
+                    oldIndex: 1,
+                    newParent: rootWrapper.unwrap(),
+                    newIndex: 2,
+                    item: {
+                        name: 'item 2 - 2'
+                    }
+                }]);
+            });
+        });
     });
 });
