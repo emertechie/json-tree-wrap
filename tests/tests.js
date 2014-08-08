@@ -153,16 +153,135 @@ describe('JsonTree', function() {
         });
     });
 
-    /*describe('Removing', function() {
+    describe('Removing', function() {
 
         describe('Removing from root item', function() {
+            var json, rootWrapper;
 
+            beforeEach(function() {
+                json = {
+                    items: [{
+                        name: 'item 1'
+                    },{
+                        name: 'item 2'
+                    },{
+                        name: 'item 3'
+                    }]
+                };
+                rootWrapper = jsonTree.wrap(json);
+            });
+
+            it('can remove from start of root item', function() {
+                rootWrapper.remove(0);
+
+                assert.deepEqual(rootWrapper.unwrap(), {
+                    items: [{
+                        name: 'item 2'
+                    },{
+                        name: 'item 3'
+                    }]
+                });
+            });
+
+            it('can remove from middle of root item', function() {
+                rootWrapper.remove(1);
+
+                assert.deepEqual(rootWrapper.unwrap(), {
+                    items: [{
+                        name: 'item 1'
+                    },{
+                        name: 'item 3'
+                    }]
+                });
+            });
+
+            it('can remove from end of root item', function() {
+                rootWrapper.remove(2);
+
+                assert.deepEqual(rootWrapper.unwrap(), {
+                    items: [{
+                        name: 'item 1'
+                    },{
+                        name: 'item 2'
+                    }]
+                });
+            });
         });
 
         describe('Removing from nested item', function() {
+            var json, rootWrapper, nestedItemWrapper;
 
+            beforeEach(function() {
+                json = {
+                    items: [{
+                        name: 'item 1'
+                    },{
+                        name: 'item 2',
+                        items: [{
+                            name: 'item 2 - 1'
+                        },{
+                            name: 'item 2 - 2'
+                        },{
+                            name: 'item 2 - 3'
+                        }]
+                    }]
+                };
+                rootWrapper = jsonTree.wrap(json);
+                nestedItemWrapper = rootWrapper.get(1);
+            });
+
+            it('can remove from start of nested item', function() {
+                nestedItemWrapper.remove(0);
+
+                assert.deepEqual(rootWrapper.unwrap(), {
+                    items: [{
+                        name: 'item 1'
+                    },{
+                        name: 'item 2',
+                        items: [{
+                            name: 'item 2 - 2'
+                        },{
+                            name: 'item 2 - 3'
+                        }]
+                    }]
+                });
+            });
+
+            it('can remove from middle of nested item', function() {
+                nestedItemWrapper.remove(1);
+
+                assert.deepEqual(rootWrapper.unwrap(), {
+                    items: [{
+                        name: 'item 1'
+                    },{
+                        name: 'item 2',
+                        items: [{
+                            name: 'item 2 - 1'
+                        },{
+                            name: 'item 2 - 3'
+                        }]
+                    }]
+                });
+            });
+
+            it('can remove from end of nested item', function() {
+                nestedItemWrapper.remove(2);
+
+                assert.deepEqual(rootWrapper.unwrap(), {
+                    items: [{
+                        name: 'item 1'
+                    },{
+                        name: 'item 2',
+                        items: [{
+                            name: 'item 2 - 1'
+                        },{
+                            name: 'item 2 - 2'
+                        }]
+                    }]
+                });
+            });
         });
-    });*/
+    });
 
     describe('Events', function() {
         var added, removed, updated, moved;
@@ -224,7 +343,7 @@ describe('JsonTree', function() {
                 }]);
             });
 
-            it('notifies when child item added', function() {
+            it('notifies when nested item added', function() {
                 var item2Wrapper = rootWrapper.get(1);
 
                 item2Wrapper.add(0, {
@@ -249,14 +368,41 @@ describe('JsonTree', function() {
                     items: [{
                         name: 'item 1'
                     },{
-                        name: 'item 2'
+                        name: 'item 2',
+                        items: [{
+                            name: 'item 2 - 1'
+                        },{
+                            name: 'item 2 - 2'
+                        }]
                     }]
                 };
                 rootWrapper = jsonTree.wrap(json, options);
             });
 
-            xit('TODO', function() {
+            it('notifies when root item removed', function() {
+                rootWrapper.remove(0);
 
+                assert.deepEqual(removed, [{
+                    parent: rootWrapper.unwrap(),
+                    index: 0,
+                    item: {
+                        name: 'item 1'
+                    }
+                }]);
+            });
+
+            it('notifies when nested item removed', function() {
+                var item2Wrapper = rootWrapper.get(1);
+
+                item2Wrapper.remove(1);
+
+                assert.deepEqual(removed, [{
+                    parent: item2Wrapper.unwrap(),
+                    index: 1,
+                    item: {
+                        name: 'item 2 - 2'
+                    }
+                }]);
             });
         });
     });
