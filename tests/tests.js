@@ -306,7 +306,7 @@ describe('JsonTree', function() {
         });
 
         it('can move item up within same parent', function() {
-            item2Wrapper.move(2, 0);
+            item2Wrapper.moveChild(2, 0);
 
             assert.deepEqual(rootWrapper.unwrap(), {
                 items: [{
@@ -325,7 +325,7 @@ describe('JsonTree', function() {
         });
 
         it('can move item down within same parent', function() {
-            item2Wrapper.move(1, 2);
+            item2Wrapper.moveChild(1, 2);
 
             assert.deepEqual(rootWrapper.unwrap(), {
                 items: [{
@@ -346,7 +346,7 @@ describe('JsonTree', function() {
         it('can move item from one parent to another', function() {
 
             // Move root item at index 0 to item2 at index 1
-            rootWrapper.move(0, item2Wrapper, 1);
+            rootWrapper.moveChild(0, item2Wrapper, 1);
 
             assert.deepEqual(rootWrapper.unwrap(), {
                 items: [{
@@ -366,7 +366,7 @@ describe('JsonTree', function() {
 
         it('throws if attempt to move parent under itself', function() {
             assert.throws(function() {
-                item2Wrapper.move(0, item2Wrapper, 1);
+                item2Wrapper.moveChild(0, item2Wrapper, 1);
             }, 'Cannot move an item under itself');
 
             // Make sure nothing changed:
@@ -529,7 +529,7 @@ describe('JsonTree', function() {
             });
 
             it('notifies when item moved within same parent', function() {
-                item2Wrapper.move(2, 0);
+                item2Wrapper.moveChild(2, 0);
 
                 var item2 = item2Wrapper.unwrap();
 
@@ -547,7 +547,7 @@ describe('JsonTree', function() {
             it('notifies when item moved to different parent', function() {
 
                 // Move "Item 2 - 2" to the end
-                item2Wrapper.move(1, rootWrapper, 2);
+                item2Wrapper.moveChild(1, rootWrapper, 2);
 
                 console.log('root', rootWrapper.unwrap());
 
