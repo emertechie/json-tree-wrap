@@ -549,8 +549,6 @@ describe('JsonTree', function() {
                 // Move "Item 2 - 2" to the end
                 item2Wrapper.moveChild(1, rootWrapper, 2);
 
-                console.log('root', rootWrapper.unwrap());
-
                 assert.deepEqual(moved, [{
                     oldParent: item2Wrapper.unwrap(),
                     oldIndex: 1,
