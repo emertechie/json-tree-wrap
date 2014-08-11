@@ -20,7 +20,7 @@ describe('JsonTree', function() {
             });
 
             it('can add item at start', function() {
-                rootWrapper.add(0, {
+                rootWrapper.addChild(0, {
                     name: 'new item'
                 });
 
@@ -36,7 +36,7 @@ describe('JsonTree', function() {
             });
 
             it('can add item in middle', function() {
-                rootWrapper.add(1, {
+                rootWrapper.addChild(1, {
                     name: 'new item'
                 });
 
@@ -52,7 +52,7 @@ describe('JsonTree', function() {
             });
 
             it('can add item at end', function() {
-                rootWrapper.add(2, {
+                rootWrapper.addChild(2, {
                     name: 'new item'
                 });
 
@@ -85,11 +85,11 @@ describe('JsonTree', function() {
                     }]
                 };
                 rootWrapper = jsonTree.wrap(json);
-                nestedItemWrapper = rootWrapper.get(1);
+                nestedItemWrapper = rootWrapper.getChild(1);
             });
 
             it('can add item at start', function() {
-                nestedItemWrapper.add(0, {
+                nestedItemWrapper.addChild(0, {
                     name: 'new item'
                 });
 
@@ -110,7 +110,7 @@ describe('JsonTree', function() {
             });
 
             it('can add item in middle', function() {
-                nestedItemWrapper.add(1, {
+                nestedItemWrapper.addChild(1, {
                     name: 'new item'
                 });
 
@@ -131,7 +131,7 @@ describe('JsonTree', function() {
             });
 
             it('can add item at end', function() {
-                nestedItemWrapper.add(2, {
+                nestedItemWrapper.addChild(2, {
                     name: 'new item'
                 });
 
@@ -172,7 +172,7 @@ describe('JsonTree', function() {
             });
 
             it('can remove from start of root item', function() {
-                rootWrapper.remove(0);
+                rootWrapper.removeChild(0);
 
                 assert.deepEqual(rootWrapper.unwrap(), {
                     items: [{
@@ -184,7 +184,7 @@ describe('JsonTree', function() {
             });
 
             it('can remove from middle of root item', function() {
-                rootWrapper.remove(1);
+                rootWrapper.removeChild(1);
 
                 assert.deepEqual(rootWrapper.unwrap(), {
                     items: [{
@@ -196,7 +196,7 @@ describe('JsonTree', function() {
             });
 
             it('can remove from end of root item', function() {
-                rootWrapper.remove(2);
+                rootWrapper.removeChild(2);
 
                 assert.deepEqual(rootWrapper.unwrap(), {
                     items: [{
@@ -227,11 +227,11 @@ describe('JsonTree', function() {
                     }]
                 };
                 rootWrapper = jsonTree.wrap(json);
-                nestedItemWrapper = rootWrapper.get(1);
+                nestedItemWrapper = rootWrapper.getChild(1);
             });
 
             it('can remove from start of nested item', function() {
-                nestedItemWrapper.remove(0);
+                nestedItemWrapper.removeChild(0);
 
                 assert.deepEqual(rootWrapper.unwrap(), {
                     items: [{
@@ -248,7 +248,7 @@ describe('JsonTree', function() {
             });
 
             it('can remove from middle of nested item', function() {
-                nestedItemWrapper.remove(1);
+                nestedItemWrapper.removeChild(1);
 
                 assert.deepEqual(rootWrapper.unwrap(), {
                     items: [{
@@ -265,7 +265,7 @@ describe('JsonTree', function() {
             });
 
             it('can remove from end of nested item', function() {
-                nestedItemWrapper.remove(2);
+                nestedItemWrapper.removeChild(2);
 
                 assert.deepEqual(rootWrapper.unwrap(), {
                     items: [{
@@ -302,7 +302,7 @@ describe('JsonTree', function() {
                 }]
             };
             rootWrapper = jsonTree.wrap(json);
-            item2Wrapper = rootWrapper.get(1);
+            item2Wrapper = rootWrapper.getChild(1);
         });
 
         it('can move item up within same parent', function() {
@@ -430,7 +430,7 @@ describe('JsonTree', function() {
             });
 
             it('notifies when root item added', function() {
-                rootWrapper.add(1, {
+                rootWrapper.addChild(1, {
                     name: 'new item'
                 });
 
@@ -444,9 +444,9 @@ describe('JsonTree', function() {
             });
 
             it('notifies when nested item added', function() {
-                var item2Wrapper = rootWrapper.get(1);
+                var item2Wrapper = rootWrapper.getChild(1);
 
-                item2Wrapper.add(0, {
+                item2Wrapper.addChild(0, {
                     name: 'new item'
                 });
 
@@ -480,7 +480,7 @@ describe('JsonTree', function() {
             });
 
             it('notifies when root item removed', function() {
-                rootWrapper.remove(0);
+                rootWrapper.removeChild(0);
 
                 assert.deepEqual(removed, [{
                     parent: rootWrapper.unwrap(),
@@ -492,9 +492,9 @@ describe('JsonTree', function() {
             });
 
             it('notifies when nested item removed', function() {
-                var item2Wrapper = rootWrapper.get(1);
+                var item2Wrapper = rootWrapper.getChild(1);
 
-                item2Wrapper.remove(1);
+                item2Wrapper.removeChild(1);
 
                 assert.deepEqual(removed, [{
                     parent: item2Wrapper.unwrap(),
@@ -525,7 +525,7 @@ describe('JsonTree', function() {
                     }]
                 };
                 rootWrapper = jsonTree.wrap(json, options);
-                item2Wrapper = rootWrapper.get(1);
+                item2Wrapper = rootWrapper.getChild(1);
             });
 
             it('notifies when item moved within same parent', function() {
