@@ -1,7 +1,7 @@
 {
   "name": "json-tree-wrap",
   "version": "0.0.1",
-  "description": "Hierarchical JSON object wrapper supporting traversal, manipulation and events",
+  "description": "Utils for hierarchical JSON. Supports manipulation, traversal, events and dynamic flattening to an array suitable for binding",
   "main": "index.js",
   "directories": {
     "test": "tests"
@@ -13,7 +13,9 @@
     "json",
     "tree",
     "hierarchy",
-    "wrapper"
+    "wrapper",
+    "flatten",
+    "binding"
   ],
   "author": "Andrew Smith <emertechie@gmail.com>",
   "license": "MIT",
