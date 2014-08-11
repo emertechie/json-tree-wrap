@@ -7,7 +7,7 @@ describe('Tree Flattener', function() {
 
     describe('Static mapping', function() {
 
-        it('flattens a nested json tree wrapper to array', function() {
+        it('flattens a nested json tree wrapper to array, including root', function() {
             var root = {
                 items: [{
                     name: 'item 1'
@@ -22,30 +22,44 @@ describe('Tree Flattener', function() {
                 }]
             };
 
-            var item1 = root.items[0];
-            var item2 = root.items[1];
-            var item2_1 = item2.items[0];
-            var item2_1_1 = item2_1.items[0];
+            var treeWrapper = treeWrap.wrap(root);
+            var flattenedItems = treeFlattener.flatten(treeWrapper);
+
+            assert.deepEqual(toShallowCompareArr(flattenedItems), [
+                { depth: 0, name: '<root>' },
+                { depth: 1, name: 'item 1' },
+                { depth: 1, name: 'item 2' },
+                { depth: 2, name: 'item 2 - 1' },
+                { depth: 3, name: 'item 2 - 1 - 1' }
+            ]);
+        });
+
+        it('flattens a nested json tree wrapper to array, excluding root', function() {
+            var root = {
+                items: [{
+                    name: 'item 1'
+                },{
+                    name: 'item 2',
+                    items: [{
+                        name: 'item 2 - 1',
+                        items: [{
+                            name: 'item 2 - 1 - 1'
+                        }]
+                    }]
+                }]
+            };
 
             var treeWrapper = treeWrap.wrap(root);
-            var items = treeFlattener.flatten(treeWrapper);
+            var flattenedItems = treeFlattener.flatten(treeWrapper, {
+                includeRoot: false
+            });
 
-            assert.deepEqual(clone(items), clone([{
-                depth: 0,
-                item: root
-            }, {
-                depth: 1,
-                item: item1
-            }, {
-                depth: 1,
-                item: item2
-            }, {
-                depth: 2,
-                item: item2_1
-            }, {
-                depth: 3,
-                item: item2_1_1
-            }]));
+            assert.deepEqual(toShallowCompareArr(flattenedItems), [
+                { depth: 1, name: 'item 1' },
+                { depth: 1, name: 'item 2' },
+                { depth: 2, name: 'item 2 - 1' },
+                { depth: 3, name: 'item 2 - 1 - 1' }
+            ]);
         });
     });
 
@@ -76,6 +90,33 @@ describe('Tree Flattener', function() {
 
             assert.deepEqual(toShallowCompareArr(flattenedItems), [
                 { depth: 0, name: '<root>' },
+                { depth: 1, name: 'new item' },
+                { depth: 1, name: 'item 1' },
+                { depth: 1, name: 'item 2' },
+                { depth: 2, name: 'item 2 - 1' }
+            ]);
+        });
+
+        it('inserts root item added at start index, without root', function() {
+            var json = {
+                items: [{
+                    name: 'item 1'
+                },{
+                    name: 'item 2',
+                    items: [{
+                        name: 'item 2 - 1'
+                    }]
+                }]
+            };
+
+            var treeWrapper = treeWrap.wrap(json, treeObserver);
+            var flattenedItems = treeFlattener.flatten(treeWrapper, treeObserver, {
+                includeRoot: false
+            });
+
+            treeWrapper.add(0, { name: 'new item' });
+
+            assert.deepEqual(toShallowCompareArr(flattenedItems), [
                 { depth: 1, name: 'new item' },
                 { depth: 1, name: 'item 1' },
                 { depth: 1, name: 'item 2' },
@@ -252,27 +293,4 @@ function toShallowCompareArr(flattenedItems) {
         };
     });
 }
-
-function clone(obj) {
-    return JSON.parse(JSON.stringify(obj));
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
