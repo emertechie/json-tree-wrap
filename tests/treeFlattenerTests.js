@@ -71,6 +71,7 @@ describe('Tree Flattener', function() {
             treeObserver = treeFlattener.createTreeObserver();
         });
 
+
         it('inserts root item added at start index', function() {
             var json = {
                 items: [{
@@ -90,33 +91,6 @@ describe('Tree Flattener', function() {
 
             assert.deepEqual(toShallowCompareArr(flattenedItems), [
                 { depth: 0, name: '<root>' },
-                { depth: 1, name: 'new item' },
-                { depth: 1, name: 'item 1' },
-                { depth: 1, name: 'item 2' },
-                { depth: 2, name: 'item 2 - 1' }
-            ]);
-        });
-
-        it('inserts root item added at start index, without root', function() {
-            var json = {
-                items: [{
-                    name: 'item 1'
-                },{
-                    name: 'item 2',
-                    items: [{
-                        name: 'item 2 - 1'
-                    }]
-                }]
-            };
-
-            var treeWrapper = treeWrap.wrap(json, treeObserver);
-            var flattenedItems = treeFlattener.flatten(treeWrapper, treeObserver, {
-                includeRoot: false
-            });
-
-            treeWrapper.add(0, { name: 'new item' });
-
-            assert.deepEqual(toShallowCompareArr(flattenedItems), [
                 { depth: 1, name: 'new item' },
                 { depth: 1, name: 'item 1' },
                 { depth: 1, name: 'item 2' },
@@ -282,15 +256,77 @@ describe('Tree Flattener', function() {
                 { depth: 2, name: 'new item' }
             ]);
         });
+
+        it('can skip root index', function() {
+            var json = {
+                items: [{
+                    name: 'item 1'
+                },{
+                    name: 'item 2',
+                    items: [{
+                        name: 'item 2 - 1'
+                    }]
+                }]
+            };
+
+            var treeWrapper = treeWrap.wrap(json, treeObserver);
+            var flattenedItems = treeFlattener.flatten(treeWrapper, treeObserver, {
+                includeRoot: false
+            });
+
+            treeWrapper.add(0, { name: 'new item' });
+
+            assert.deepEqual(toShallowCompareArr(flattenedItems), [
+                { depth: 1, name: 'new item' },
+                { depth: 1, name: 'item 1' },
+                { depth: 1, name: 'item 2' },
+                { depth: 2, name: 'item 2 - 1' }
+            ]);
+        });
+
+        it('can manipulate newly added flattened items', function() {
+            var json = {
+                items: [{
+                    name: 'item 1'
+                },{
+                    name: 'item 2'
+                }]
+            };
+
+            var treeWrapper = treeWrap.wrap(json, treeObserver);
+
+            var lastId = 100;
+            var flattenedItems = treeFlattener.flatten(treeWrapper, treeObserver, {
+                onNew: function(itemWrapper) {
+                    itemWrapper.id = lastId++;
+                }
+            });
+
+            treeWrapper.add(1, { name: 'new item 1' });
+            treeWrapper.add(2, { name: 'new item 2' });
+
+            var compareArr = toShallowCompareArr(flattenedItems, 'id');
+            assert.deepEqual(compareArr, [
+                { depth: 0, name: '<root>', id: undefined },
+                { depth: 1, name: 'item 1', id: undefined },
+                { depth: 1, name: 'new item 1', id: 100 },
+                { depth: 1, name: 'new item 2', id: 101 },
+                { depth: 1, name: 'item 2', id: undefined }
+            ]);
+        });
     });
 });
 
-function toShallowCompareArr(flattenedItems) {
+function toShallowCompareArr(flattenedItems, additionalProp) {
     return _.map(flattenedItems, function(itemWrap) {
-        return {
+        var compareObj = {
             name: itemWrap.item.name || '<root>',
             depth: itemWrap.depth
         };
+        if (additionalProp) {
+            compareObj[additionalProp] = itemWrap[additionalProp];
+        }
+        return compareObj;
     });
 }
 
