@@ -6,7 +6,7 @@
     "Andrew Smith <emertechie@gmail.com>"
   ],
   "description": "Utils for hierarchical JSON. Supports manipulation, traversal, events and dynamic flattening to an array suitable for binding",
-  "main": "lib/index.js",
+  "main": "lib/treeWrap.js",
   "moduleType": [
     "amd",
     "globals",

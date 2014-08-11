@@ -2,7 +2,7 @@
   "name": "json-tree-wrap",
   "version": "0.0.1",
   "description": "Utils for hierarchical JSON. Supports manipulation, traversal, events and dynamic flattening to an array suitable for binding",
-  "main": "index.js",
+  "main": "lib/treeWrap.js",
   "directories": {
     "test": "tests"
   },

@@ -1,6 +1,6 @@
 var assert = require('chai').assert,
     _ = require('lodash'),
-    treeWrap = require('../lib/index.js'),
+    treeWrap = require('../lib/treeWrap.js'),
     treeFlattener = require('../lib/treeFlattener.js');
 
 describe('Tree Flattener', function() {

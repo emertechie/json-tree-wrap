@@ -1,4 +1,4 @@
-var jsonTree = require('../lib/index.js'),
+var jsonTree = require('../lib/treeWrap.js'),
     assert = require('chai').assert;
 
 describe('JsonTree', function() {
