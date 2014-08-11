@@ -561,4 +561,41 @@ describe('JsonTree', function() {
             });
         });
     });
+
+    describe('Traversing', function() {
+        it('can traverse wrapped item and child items', function() {
+            var rootWrapper = jsonTree.wrap({
+                items: [{
+                    name: 'item 1'
+                },{
+                    name: 'item 2',
+                    items: [{
+                        name: 'item 2 - 1',
+                        items: [{
+                            name: 'item 2 - 1 - 1'
+                        }]
+                    },{
+                        name: 'item 2 - 2'
+                    }]
+                }]
+            });
+
+            var actual = [];
+            rootWrapper.traverse(function(item, index) {
+                actual.push({
+                    name: item.name || '<root>',
+                    index: index
+                })
+            });
+
+            assert.deepEqual(actual, [
+                { name: '<root>', index: 0 },
+                { name: 'item 1', index: 1 },
+                { name: 'item 2', index: 2 },
+                { name: 'item 2 - 1', index: 3 },
+                { name: 'item 2 - 1 - 1', index: 4 },
+                { name: 'item 2 - 2', index: 5 },
+            ]);
+        });
+    });
 });
