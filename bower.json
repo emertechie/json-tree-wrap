@@ -1,0 +1,31 @@
+{
+  "name": "json-tree-wrap",
+  "version": "0.0.1",
+  "homepage": "https://github.com/emertechie/json-tree-wrap",
+  "authors": [
+    "Andrew Smith <emertechie@gmail.com>"
+  ],
+  "description": "Utils for hierarchical JSON. Supports manipulation, traversal, events and dynamic flattening to an array suitable for binding",
+  "main": "lib/index.js",
+  "moduleType": [
+    "amd",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+      "json",
+      "tree",
+      "hierarchy",
+      "wrapper",
+      "flatten",
+      "binding"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
