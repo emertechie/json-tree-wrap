@@ -307,11 +307,11 @@ describe('Tree Flattener', function() {
 
             var compareArr = toShallowCompareArr(flattenedItems, 'id');
             assert.deepEqual(compareArr, [
-                { depth: 0, name: '<root>', id: undefined },
-                { depth: 1, name: 'item 1', id: undefined },
-                { depth: 1, name: 'new item 1', id: 100 },
-                { depth: 1, name: 'new item 2', id: 101 },
-                { depth: 1, name: 'item 2', id: undefined }
+                { depth: 0, name: '<root>', id: 100 },
+                { depth: 1, name: 'item 1', id: 101 },
+                { depth: 1, name: 'new item 1', id: 103 },
+                { depth: 1, name: 'new item 2', id: 104 },
+                { depth: 1, name: 'item 2', id: 102 }
             ]);
         });
     });
