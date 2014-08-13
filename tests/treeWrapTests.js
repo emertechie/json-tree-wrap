@@ -577,24 +577,28 @@ describe('JsonTree', function() {
                     },{
                         name: 'item 2 - 2'
                     }]
+                }, {
+                    name: 'item 3'
                 }]
             });
 
             var actual = [];
-            rootWrapper.traverse(function(item, index) {
+            rootWrapper.traverse(function(item, index, depth) {
                 actual.push({
                     name: item.name || '<root>',
-                    index: index
+                    index: index,
+                    depth: depth
                 })
             });
 
             assert.deepEqual(actual, [
-                { name: '<root>', index: 0 },
-                { name: 'item 1', index: 1 },
-                { name: 'item 2', index: 2 },
-                { name: 'item 2 - 1', index: 3 },
-                { name: 'item 2 - 1 - 1', index: 4 },
-                { name: 'item 2 - 2', index: 5 },
+                { name: '<root>', index: 0, depth: 0 },
+                { name: 'item 1', index: 1, depth: 1 },
+                { name: 'item 2', index: 2, depth: 1 },
+                { name: 'item 2 - 1', index: 3, depth: 2 },
+                { name: 'item 2 - 1 - 1', index: 4, depth: 3 },
+                { name: 'item 2 - 2', index: 5, depth: 2 },
+                { name: 'item 3', index: 6, depth: 1 }
             ]);
         });
     });
