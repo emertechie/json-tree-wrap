@@ -1,6 +1,6 @@
 var assert = require('chai').assert,
     _ = require('lodash'),
-    treeWrap = require('../lib/treeWrap.js'),
+    TreeWrapper = require('../lib/treeWrap.js'),
     TreeFlattener = require('../lib/treeFlattener.js'),
     TreeObserver = require('../lib/treeObserver.js');
 
@@ -13,9 +13,10 @@ describe('Tree Flattener', function() {
             var treeObserver = new TreeObserver();
             var treeFlattener = new TreeFlattener(treeObserver, options || {});
 
-            treeWrap.wrap(json, {
+            var treeWrapper = new TreeWrapper({
                 observer: treeObserver
             });
+            treeWrapper.wrap(json);
 
             return treeFlattener.getItems();
         };
@@ -79,11 +80,14 @@ describe('Tree Flattener', function() {
 
     describe('Dynamic mapping', function() {
 
-        var treeObserver, treeFlattener;
+        var treeObserver, treeFlattener, treeWrapper;
 
         beforeEach(function() {
             treeObserver = new TreeObserver();
             treeFlattener = new TreeFlattener(treeObserver);
+            treeWrapper = new TreeWrapper({
+                observer: treeObserver
+            });
         });
 
         it('inserts root item added at start index', function() {
@@ -98,10 +102,10 @@ describe('Tree Flattener', function() {
                 }]
             };
 
-            var treeWrapper = treeWrap.wrap(json, { observer: treeObserver });
+            var wrapper = treeWrapper.wrap(json);
             var flattenedItems = treeFlattener.getItems();
 
-            treeWrapper.addChild(0, { name: 'new item' });
+            wrapper.addChild(0, { name: 'new item' });
 
             assert.deepEqual(toShallowCompareArr(flattenedItems), [
                 { depth: 0, name: '<root>' },
@@ -127,10 +131,10 @@ describe('Tree Flattener', function() {
                 }]
             };
 
-            var treeWrapper = treeWrap.wrap(json, { observer: treeObserver });
+            var wrapper = treeWrapper.wrap(json);
             var flattenedItems = treeFlattener.getItems();
 
-            treeWrapper.addChild(1, { name: 'new item' });
+            wrapper.addChild(1, { name: 'new item' });
 
             assert.deepEqual(toShallowCompareArr(flattenedItems), [
                 { depth: 0, name: '<root>' },
@@ -157,10 +161,10 @@ describe('Tree Flattener', function() {
                 }]
             };
 
-            var treeWrapper = treeWrap.wrap(json, { observer: treeObserver });
+            var wrapper = treeWrapper.wrap(json);
             var flattenedItems = treeFlattener.getItems();
 
-            treeWrapper.addChild(2, { name: 'new item' });
+            wrapper.addChild(2, { name: 'new item' });
 
             assert.deepEqual(toShallowCompareArr(flattenedItems), [
                 { depth: 0, name: '<root>' },
@@ -187,8 +191,8 @@ describe('Tree Flattener', function() {
                 }]
             };
 
-            var treeWrapper = treeWrap.wrap(json, { observer: treeObserver });
-            var item2Wrapper = treeWrapper.getChild(1);
+            var wrapper = treeWrapper.wrap(json);
+            var item2Wrapper = wrapper.getChild(1);
             var flattenedItems = treeFlattener.getItems();
 
             item2Wrapper.addChild(0, { name: 'new item' });
@@ -220,8 +224,8 @@ describe('Tree Flattener', function() {
                 }]
             };
 
-            var treeWrapper = treeWrap.wrap(json, { observer: treeObserver });
-            var item2Wrapper = treeWrapper.getChild(1);
+            var wrapper = treeWrapper.wrap(json);
+            var item2Wrapper = wrapper.getChild(1);
             var flattenedItems = treeFlattener.getItems();
 
             item2Wrapper.addChild(1, { name: 'new item' });
@@ -254,8 +258,8 @@ describe('Tree Flattener', function() {
                 }]
             };
 
-            var treeWrapper = treeWrap.wrap(json, { observer: treeObserver });
-            var item2Wrapper = treeWrapper.getChild(1);
+            var wrapper = treeWrapper.wrap(json);
+            var item2Wrapper = wrapper.getChild(1);
             var flattenedItems = treeFlattener.getItems();
 
             item2Wrapper.addChild(2, { name: 'new item' });
@@ -286,10 +290,10 @@ describe('Tree Flattener', function() {
             var treeFlattener = new TreeFlattener(treeObserver, {
                 includeRoot: false
             });
-            var treeWrapper = treeWrap.wrap(json, { observer: treeObserver });
+            var wrapper = treeWrapper.wrap(json);
             var flattenedItems = treeFlattener.getItems();
 
-            treeWrapper.addChild(0, { name: 'new item' });
+            wrapper.addChild(0, { name: 'new item' });
 
             assert.deepEqual(toShallowCompareArr(flattenedItems), [
                 { depth: 1, name: 'new item' },
@@ -308,20 +312,21 @@ describe('Tree Flattener', function() {
                 }]
             };
 
-            var treeFlattener = new TreeFlattener(treeObserver);
-
             var lastId = 99;
 
-            var treeWrapper = treeWrap.wrap(json, {
+            var treeWrapper = new TreeWrapper({
                 observer: treeObserver,
                 getItemId: function( /* item, parent */ ) {
                     return ++lastId;
                 }
             });
+            var treeFlattener = new TreeFlattener(treeObserver);
+
+            var wrapper = treeWrapper.wrap(json);
             var flattenedItems = treeFlattener.getItems();
 
-            treeWrapper.addChild(1, { name: 'new item 1' });
-            treeWrapper.addChild(2, { name: 'new item 2' });
+            wrapper.addChild(1, { name: 'new item 1' });
+            wrapper.addChild(2, { name: 'new item 2' });
 
             var compareArr = toShallowCompareArr(flattenedItems, 'id');
 
@@ -330,6 +335,53 @@ describe('Tree Flattener', function() {
                 { depth: 1, name: 'item 1', id: 101 },
                 { depth: 1, name: 'new item 1', id: 103 },
                 { depth: 1, name: 'new item 2', id: 104 },
+                { depth: 1, name: 'item 2', id: 102 }
+            ]);
+        });
+
+
+
+        // TODO: move to own section and tidy up
+
+        it('can use item ID to get wrapper for root item', function() {
+            var json = {
+                items: [{
+                    name: 'item 1'
+                },{
+                    name: 'item 2'
+                }]
+            };
+
+            var lastId = 99;
+
+            var treeWrapper = new TreeWrapper({
+                observer: treeObserver,
+                getItemId: function( /* item, parent */ ) {
+                    return ++lastId;
+                }
+            });
+            var treeFlattener = new TreeFlattener(treeObserver);
+
+            var wrapper = treeWrapper.wrap(json);
+            var flattenedItems = treeFlattener.getItems();
+
+            wrapper.addChild(1, { name: 'new item 1' });
+
+            var flatItem = flattenedItems[2];
+            assert.equal(flatItem.item.name, 'new item 1');
+
+            var newItemWrapper = treeWrapper.getWrapper(flatItem.item, flatItem.id);
+            newItemWrapper.addChild(0, {
+                name: 'new item 2'
+            });
+
+            var compareArr = toShallowCompareArr(flattenedItems, 'id');
+
+            assert.deepEqual(compareArr, [
+                { depth: 0, name: '<root>', id: 100 },
+                { depth: 1, name: 'item 1', id: 101 },
+                { depth: 1, name: 'new item 1', id: 103 },
+                { depth: 2, name: 'new item 2', id: 104 },
                 { depth: 1, name: 'item 2', id: 102 }
             ]);
         });

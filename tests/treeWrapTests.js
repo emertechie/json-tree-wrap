@@ -1,4 +1,4 @@
-var jsonTree = require('../lib/treeWrap.js'),
+var TreeWrapper = require('../lib/treeWrap.js'),
     assert = require('chai').assert;
 
 describe('JsonTree', function() {
@@ -16,7 +16,8 @@ describe('JsonTree', function() {
                         name: 'item 2'
                     }]
                 };
-                rootWrapper = jsonTree.wrap(json);
+                var treeWrapper = new TreeWrapper();
+                rootWrapper = treeWrapper.wrap(json);
             });
 
             it('can add item at start', function() {
@@ -84,7 +85,8 @@ describe('JsonTree', function() {
                         }]
                     }]
                 };
-                rootWrapper = jsonTree.wrap(json);
+                var treeWrapper = new TreeWrapper();
+                rootWrapper = treeWrapper.wrap(json);
                 nestedItemWrapper = rootWrapper.getChild(1);
             });
 
@@ -168,7 +170,8 @@ describe('JsonTree', function() {
                         name: 'item 3'
                     }]
                 };
-                rootWrapper = jsonTree.wrap(json);
+                var treeWrapper = new TreeWrapper();
+                rootWrapper = treeWrapper.wrap(json);
             });
 
             it('can remove from start of root item', function() {
@@ -226,7 +229,8 @@ describe('JsonTree', function() {
                         }]
                     }]
                 };
-                rootWrapper = jsonTree.wrap(json);
+                var treeWrapper = new TreeWrapper();
+                rootWrapper = treeWrapper.wrap(json);
                 nestedItemWrapper = rootWrapper.getChild(1);
             });
 
@@ -301,7 +305,8 @@ describe('JsonTree', function() {
                     }]
                 }]
             };
-            rootWrapper = jsonTree.wrap(json);
+            var treeWrapper = new TreeWrapper();
+            rootWrapper = treeWrapper.wrap(json);
             item2Wrapper = rootWrapper.getChild(1);
         });
 
@@ -426,7 +431,9 @@ describe('JsonTree', function() {
                         name: 'item 2'
                     }]
                 };
-                rootWrapper = jsonTree.wrap(json, options);
+
+                var treeWrapper = new TreeWrapper(options);
+                rootWrapper = treeWrapper.wrap(json);
             });
 
             it('notifies when root item added', function() {
@@ -476,7 +483,8 @@ describe('JsonTree', function() {
                         }]
                     }]
                 };
-                rootWrapper = jsonTree.wrap(json, options);
+                var treeWrapper = new TreeWrapper(options);
+                rootWrapper = treeWrapper.wrap(json);
             });
 
             it('notifies when root item removed', function() {
@@ -524,7 +532,8 @@ describe('JsonTree', function() {
                         }]
                     }]
                 };
-                rootWrapper = jsonTree.wrap(json, options);
+                var treeWrapper = new TreeWrapper(options);
+                rootWrapper = treeWrapper.wrap(json);
                 item2Wrapper = rootWrapper.getChild(1);
             });
 
@@ -564,7 +573,9 @@ describe('JsonTree', function() {
 
     describe('Traversing', function() {
         it('can traverse wrapped item and child items', function() {
-            var rootWrapper = jsonTree.wrap({
+
+            var treeWrapper = new TreeWrapper();
+            var rootWrapper = treeWrapper.wrap({
                 items: [{
                     name: 'item 1'
                 },{
