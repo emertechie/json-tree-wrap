@@ -1,7 +1,8 @@
 var assert = require('chai').assert,
     _ = require('lodash'),
     treeWrap = require('../lib/treeWrap.js'),
-    treeFlattener = require('../lib/treeFlattener.js');
+    treeFlattener = require('../lib/treeFlattener.js'),
+    TreeObserver = require('../lib/treeObserver.js');
 
 describe('Tree Flattener', function() {
 
@@ -21,6 +22,16 @@ describe('Tree Flattener', function() {
                     }]
                 }]
             };
+
+            // TODO: Make the tree flattener plug into the traverse done as part of .wrap
+
+            /*var treeObserver = new TreeObserver();
+            var treeFlattener = new TreeFlattener(treeObserver);  // Will get itemId from .onInit and .onAdd. Use that when creating wrapper
+            var treeWrapper = treeWrap.wrap(root, {
+                observer: treeObserver
+            });
+
+            var flattenedItems = treeFlattener.getFlatItems();*/
 
             var treeWrapper = treeWrap.wrap(root);
             var flattenedItems = treeFlattener.flatten(treeWrapper);
@@ -68,7 +79,7 @@ describe('Tree Flattener', function() {
         var treeObserver;
 
         beforeEach(function() {
-            treeObserver = treeFlattener.createTreeObserver();
+            treeObserver = new TreeObserver();
         });
 
 
@@ -329,4 +340,3 @@ function toShallowCompareArr(flattenedItems, additionalProp) {
         return compareObj;
     });
 }
-
