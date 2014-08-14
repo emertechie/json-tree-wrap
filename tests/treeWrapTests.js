@@ -1,4 +1,5 @@
 var TreeWrapper = require('../lib/treeWrap.js'),
+    _ = require('lodash'),
     assert = require('chai').assert;
 
 describe('JsonTree', function() {
@@ -288,10 +289,14 @@ describe('JsonTree', function() {
     });
 
     describe('Moving items', function() {
-        var json, rootWrapper, item2Wrapper;
+        var treeWrapper;
 
         beforeEach(function() {
-            json = {
+            treeWrapper = new TreeWrapper();
+        });
+
+        it('can move item up within same parent', function() {
+            var json = {
                 items: [{
                     name: 'item 1'
                 },{
@@ -305,12 +310,10 @@ describe('JsonTree', function() {
                     }]
                 }]
             };
-            var treeWrapper = new TreeWrapper();
-            rootWrapper = treeWrapper.wrap(json);
-            item2Wrapper = rootWrapper.getChild(1);
-        });
 
-        it('can move item up within same parent', function() {
+            var rootWrapper = treeWrapper.wrap(json);
+            var item2Wrapper = rootWrapper.getChild(1);
+
             item2Wrapper.moveChild(2, 0);
 
             assert.deepEqual(rootWrapper.unwrap(), {
@@ -330,6 +333,24 @@ describe('JsonTree', function() {
         });
 
         it('can move item down within same parent', function() {
+            var json = {
+                items: [{
+                    name: 'item 1'
+                },{
+                    name: 'item 2',
+                    items: [{
+                        name: 'item 2 - 1'
+                    },{
+                        name: 'item 2 - 2'
+                    },{
+                        name: 'item 2 - 3'
+                    }]
+                }]
+            };
+
+            var rootWrapper = treeWrapper.wrap(json);
+            var item2Wrapper = rootWrapper.getChild(1);
+
             item2Wrapper.moveChild(1, 2);
 
             assert.deepEqual(rootWrapper.unwrap(), {
@@ -349,6 +370,23 @@ describe('JsonTree', function() {
         });
 
         it('can move item from one parent to another', function() {
+            var json = {
+                items: [{
+                    name: 'item 1'
+                },{
+                    name: 'item 2',
+                    items: [{
+                        name: 'item 2 - 1'
+                    },{
+                        name: 'item 2 - 2'
+                    },{
+                        name: 'item 2 - 3'
+                    }]
+                }]
+            };
+
+            var rootWrapper = treeWrapper.wrap(json);
+            var item2Wrapper = rootWrapper.getChild(1);
 
             // Move root item at index 0 to item2 at index 1
             rootWrapper.moveChild(0, item2Wrapper, 1);
@@ -370,6 +408,20 @@ describe('JsonTree', function() {
         });
 
         it('throws if attempt to move parent under itself', function() {
+            var json = {
+                items: [{
+                    name: 'item 1'
+                },{
+                    name: 'item 2',
+                    items: [{
+                        name: 'item 2 - 1'
+                    }]
+                }]
+            };
+
+            var rootWrapper = treeWrapper.wrap(json);
+            var item2Wrapper = rootWrapper.getChild(1);
+
             assert.throws(function() {
                 item2Wrapper.moveChild(0, item2Wrapper, 1);
             }, 'Cannot move an item under itself');
@@ -382,10 +434,6 @@ describe('JsonTree', function() {
                     name: 'item 2',
                     items: [{
                         name: 'item 2 - 1'
-                    },{
-                        name: 'item 2 - 2'
-                    },{
-                        name: 'item 2 - 3'
                     }]
                 }]
             });
@@ -420,6 +468,21 @@ describe('JsonTree', function() {
             };
         });
 
+        function getItemName(item) {
+            if (!item) return null;
+            return item.name ? item.name : '<root>';
+        }
+
+        function getCompareArr(eventArr) {
+            return _.map(eventArr, function(eventObj) {
+                return {
+                    parent: getItemName(eventObj.parent),
+                    index: eventObj.index,
+                    name: getItemName(eventObj.item)
+                };
+            });
+        }
+
         describe('Add event', function() {
             var json, rootWrapper;
 
@@ -441,12 +504,8 @@ describe('JsonTree', function() {
                     name: 'new item'
                 });
 
-                assert.deepEqual(added, [{
-                    parent: rootWrapper.unwrap(),
-                    index: 1,
-                    item: {
-                        name: 'new item'
-                    }
+                assert.deepEqual(getCompareArr(added), [{
+                    parent: '<root>', index: 1, name: 'new item'
                 }]);
             });
 
@@ -457,12 +516,8 @@ describe('JsonTree', function() {
                     name: 'new item'
                 });
 
-                assert.deepEqual(added, [{
-                    parent: item2Wrapper.unwrap(),
-                    index: 0,
-                    item: {
-                        name: 'new item'
-                    }
+                assert.deepEqual(getCompareArr(added), [{
+                    parent: 'item 2', index: 0, name: 'new item'
                 }]);
             });
         });
@@ -490,12 +545,8 @@ describe('JsonTree', function() {
             it('notifies when root item removed', function() {
                 rootWrapper.removeChild(0);
 
-                assert.deepEqual(removed, [{
-                    parent: rootWrapper.unwrap(),
-                    index: 0,
-                    item: {
-                        name: 'item 1'
-                    }
+                assert.deepEqual(getCompareArr(removed), [{
+                    parent: '<root>', index: 0, name: 'item 1'
                 }]);
             });
 
@@ -504,12 +555,8 @@ describe('JsonTree', function() {
 
                 item2Wrapper.removeChild(1);
 
-                assert.deepEqual(removed, [{
-                    parent: item2Wrapper.unwrap(),
-                    index: 1,
-                    item: {
-                        name: 'item 2 - 2'
-                    }
+                assert.deepEqual(getCompareArr(removed), [{
+                    parent: 'item 2', index: 1, name: 'item 2 - 2'
                 }]);
             });
         });
