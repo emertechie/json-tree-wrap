@@ -438,6 +438,193 @@ describe('Tree Flattener', function() {
                 ]);
             });
         });
+
+        describe('Moves', function() {
+
+            it('moves flat items and children when item moved from lower index to higher within same parent', function() {
+                var json = {
+                    items: [{
+                        name: 'item 1',
+                        items: [{
+                            name: 'item 1 - 1',
+                            items: [{
+                                name: 'item 1 - 1 - 1'
+                            }]
+                        }, {
+                            name: 'item 1 - 2'
+                        }]
+                    },{
+                        name: 'item 2'
+                    },{
+                        name: 'item 3',
+                        items: [{
+                            name: 'item 3 - 1'
+                        }]
+                    }]
+                };
+
+                var rootWrapper = treeWrapper.wrap(json);
+                var flattenedItems = treeFlattener.getItems();
+
+                assert.deepEqual(toShallowCompareArr(flattenedItems), [
+                    { depth: 0, name: '<root>' },
+                    { depth: 1, name: 'item 1' },
+                    { depth: 2, name: 'item 1 - 1' },
+                    { depth: 3, name: 'item 1 - 1 - 1' },
+                    { depth: 2, name: 'item 1 - 2' },
+                    { depth: 1, name: 'item 2' },
+                    { depth: 1, name: 'item 3' },
+                    { depth: 2, name: 'item 3 - 1' }
+                ]);
+
+                rootWrapper.moveChild(0, 2);
+
+                assert.deepEqual(toShallowCompareArr(flattenedItems), [
+                    { depth: 0, name: '<root>' },
+                    { depth: 1, name: 'item 2' },
+                    { depth: 1, name: 'item 3' },
+                    { depth: 2, name: 'item 3 - 1' },
+                    { depth: 1, name: 'item 1' },
+                    { depth: 2, name: 'item 1 - 1' },
+                    { depth: 3, name: 'item 1 - 1 - 1' },
+                    { depth: 2, name: 'item 1 - 2' }
+                ]);
+            });
+
+            it('moves flat items and children when item moved from higher index to lower within same parent', function() {
+                var json = {
+                    items: [{
+                        name: 'item 1'
+                    },{
+                        name: 'item 2',
+                        items: [{
+                            name: 'item 2 - 1'
+                        }]
+                    },{
+                        name: 'item 3',
+                        items: [{
+                            name: 'item 3 - 1',
+                            items: [{
+                                name: 'item 3 - 1 - 1'
+                            }]
+                        }, {
+                            name: 'item 3 - 2'
+                        }]
+                    }]
+                };
+
+                var rootWrapper = treeWrapper.wrap(json);
+                var flattenedItems = treeFlattener.getItems();
+
+                assert.deepEqual(toShallowCompareArr(flattenedItems), [
+                    { depth: 0, name: '<root>' },
+                    { depth: 1, name: 'item 1' },
+                    { depth: 1, name: 'item 2' },
+                    { depth: 2, name: 'item 2 - 1' },
+                    { depth: 1, name: 'item 3' },
+                    { depth: 2, name: 'item 3 - 1' },
+                    { depth: 3, name: 'item 3 - 1 - 1' },
+                    { depth: 2, name: 'item 3 - 2' }
+                ]);
+
+                rootWrapper.moveChild(2, 0);
+
+                assert.deepEqual(toShallowCompareArr(flattenedItems), [
+                    { depth: 0, name: '<root>' },
+                    { depth: 1, name: 'item 3' },
+                    { depth: 2, name: 'item 3 - 1' },
+                    { depth: 3, name: 'item 3 - 1 - 1' },
+                    { depth: 2, name: 'item 3 - 2' },
+                    { depth: 1, name: 'item 1' },
+                    { depth: 1, name: 'item 2' },
+                    { depth: 2, name: 'item 2 - 1' }
+                ]);
+            });
+
+            it('moves flat items and children when item moved from lower parent to higher parent', function() {
+                var json = {
+                    items: [{
+                        name: 'item 1',
+                        items: [{
+                            name: 'item 1 - 1'
+                        }]
+                    },{
+                        name: 'item 2'
+                    },{
+                        name: 'item 3',
+                        items: [{
+                            name: 'item 3 - 1'
+                        }]
+                    }]
+                };
+
+                var rootWrapper = treeWrapper.wrap(json);
+                var flattenedItems = treeFlattener.getItems();
+
+                assert.deepEqual(toShallowCompareArr(flattenedItems), [
+                    { depth: 0, name: '<root>' },
+                    { depth: 1, name: 'item 1' },
+                    { depth: 2, name: 'item 1 - 1' },
+                    { depth: 1, name: 'item 2' },
+                    { depth: 1, name: 'item 3' },
+                    { depth: 2, name: 'item 3 - 1' }
+                ]);
+
+                var item3Wrapper = rootWrapper.getChild(2);
+                rootWrapper.moveChild(0, item3Wrapper, 0);
+
+                assert.deepEqual(toShallowCompareArr(flattenedItems), [
+                    { depth: 0, name: '<root>' },
+                    { depth: 1, name: 'item 2' },
+                    { depth: 1, name: 'item 3' },
+                    { depth: 2, name: 'item 1' },
+                    { depth: 3, name: 'item 1 - 1' },
+                    { depth: 2, name: 'item 3 - 1' }
+                ]);
+            });
+
+            it('moves flat items and children when item moved from higer parent to lower parent', function() {
+                var json = {
+                    items: [{
+                        name: 'item 1'
+                    },{
+                        name: 'item 2'
+                    },{
+                        name: 'item 3',
+                        items: [{
+                            name: 'item 3 - 1',
+                            items: [{
+                                name: 'item 3 - 1 - 1'
+                            }]
+                        }]
+                    }]
+                };
+
+                var rootWrapper = treeWrapper.wrap(json);
+                var flattenedItems = treeFlattener.getItems();
+
+                assert.deepEqual(toShallowCompareArr(flattenedItems), [
+                    { depth: 0, name: '<root>' },
+                    { depth: 1, name: 'item 1' },
+                    { depth: 1, name: 'item 2' },
+                    { depth: 1, name: 'item 3' },
+                    { depth: 2, name: 'item 3 - 1' },
+                    { depth: 3, name: 'item 3 - 1 - 1' }
+                ]);
+
+                var item3Wrapper = rootWrapper.getChild(2);
+                item3Wrapper.moveChild(0, rootWrapper, 1);
+
+                assert.deepEqual(toShallowCompareArr(flattenedItems), [
+                    { depth: 0, name: '<root>' },
+                    { depth: 1, name: 'item 1' },
+                    { depth: 1, name: 'item 3 - 1' },
+                    { depth: 2, name: 'item 3 - 1 - 1' },
+                    { depth: 1, name: 'item 2' },
+                    { depth: 1, name: 'item 3' }
+                ]);
+            });
+        });
     });
 
     describe('Integration with TreeWrapper', function() {
