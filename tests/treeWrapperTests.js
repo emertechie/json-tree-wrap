@@ -154,6 +154,77 @@ describe('JsonTree', function() {
                 });
             });
         });
+
+        describe('Adding in relation to item', function() {
+
+            it('can add above item', function() {
+                var json = {
+                    items: [{
+                        name: 'item 1',
+                        items: [{
+                            name: 'item 1 - 1'
+                        },{
+                            name: 'item 1 - 2'
+                        }]
+                    }]
+                };
+
+                var treeWrapper = new TreeWrapper();
+                var rootWrapper = treeWrapper.wrap(json);
+                var item1_2_Wrapper = rootWrapper.getChild(0).getChild(1);
+
+                item1_2_Wrapper.addAbove({
+                    name: 'new item'
+                });
+
+                assert.deepEqual(rootWrapper.unwrap(), {
+                    items: [{
+                        name: 'item 1',
+                        items: [{
+                            name: 'item 1 - 1'
+                        },{
+                            name: 'new item'
+                        },{
+                            name: 'item 1 - 2'
+                        }]
+                    }]
+                });
+            });
+
+            it('can add below item', function() {
+                var json = {
+                    items: [{
+                        name: 'item 1',
+                        items: [{
+                            name: 'item 1 - 1'
+                        },{
+                            name: 'item 1 - 2'
+                        }]
+                    }]
+                };
+
+                var treeWrapper = new TreeWrapper();
+                var rootWrapper = treeWrapper.wrap(json);
+                var item1_2_Wrapper = rootWrapper.getChild(0).getChild(1);
+
+                item1_2_Wrapper.addBelow({
+                    name: 'new item'
+                });
+
+                assert.deepEqual(rootWrapper.unwrap(), {
+                    items: [{
+                        name: 'item 1',
+                        items: [{
+                            name: 'item 1 - 1'
+                        },{
+                            name: 'item 1 - 2'
+                        },{
+                            name: 'new item'
+                        }]
+                    }]
+                });
+            });
+        });
     });
 
     describe('Removing', function() {
