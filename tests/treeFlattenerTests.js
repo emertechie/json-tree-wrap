@@ -304,6 +304,27 @@ describe('Tree Flattener', function() {
                     { depth: 2, name: 'item 2 - 1', parent: 'item 2' }
                 ]);
             });
+
+            it('can use passthrough state obj to set additional props on flattened item', function() {
+                var json = {
+                    items: [{
+                        name: 'item 1'
+                    }]
+                };
+
+                var treeFlattener = new TreeFlattener(treeWrapper, treeObserver, {
+                    includeRoot: false
+                });
+                var rootWrapper = treeWrapper.wrap(json);
+                var flattenedItems = treeFlattener.getItems();
+
+                rootWrapper.addChild(1, { name: 'new item' }, { edit: true });
+
+                assert.deepEqual(toShallowCompareArr(flattenedItems, 'edit'), [
+                    { depth: 1, name: 'item 1', parent: '<root>', edit: undefined },
+                    { depth: 1, name: 'new item', parent: '<root>', edit: true }
+                ]);
+            });
         });
 
         describe('Removes', function() {
@@ -719,12 +740,16 @@ describe('Tree Flattener', function() {
     });
 });
 
-function toShallowCompareArr(flattenedItems) {
+function toShallowCompareArr(flattenedItems, additionalProp) {
     return _.map(flattenedItems, function(itemWrap) {
-        return {
+        var comparable = {
             name: itemWrap.item.name || '<root>',
             depth: itemWrap.depth,
             parent: itemWrap.parent ? (itemWrap.parent.name ? itemWrap.parent.name : '<root>') : null
         };
+        if (additionalProp) {
+            comparable[additionalProp] = itemWrap[additionalProp];
+        }
+        return comparable;
     });
 }

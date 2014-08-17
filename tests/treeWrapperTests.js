@@ -521,8 +521,8 @@ describe('JsonTree', function() {
             moved = [];
 
             options = {
-                onAdd: function (parent, index, item) {
-                    added.push({ parent: parent, index: index, item: item });
+                onAdd: function (parent, index, item, state) {
+                    added.push({ parent: parent, index: index, item: item, state: state });
                 },
                 onRemove: function (parent, index, item) {
                     removed.push({ parent: parent, index: index, item: item });
@@ -546,11 +546,15 @@ describe('JsonTree', function() {
 
         function getCompareArr(eventArr) {
             return _.map(eventArr, function(eventObj) {
-                return {
+                var compareble = {
                     parent: getItemName(eventObj.parent),
                     index: eventObj.index,
                     name: getItemName(eventObj.item)
                 };
+                if (eventObj.state) {
+                    compareble.state = eventObj.state;
+                }
+                return compareble;
             });
         }
 
@@ -571,48 +575,52 @@ describe('JsonTree', function() {
             });
 
             it('notifies when root item added', function() {
+                var optionalStateObj = { itemSelected: true };
                 rootWrapper.addChild(1, {
                     name: 'new item'
-                });
+                }, optionalStateObj);
 
                 assert.deepEqual(getCompareArr(added), [{
-                    parent: '<root>', index: 1, name: 'new item'
+                    parent: '<root>', index: 1, name: 'new item', state: { itemSelected: true }
                 }]);
             });
 
             it('notifies when nested item added', function() {
                 var item2Wrapper = rootWrapper.getChild(1);
 
+                var optionalStateObj = { itemSelected: true };
                 item2Wrapper.addChild(0, {
                     name: 'new item'
-                });
+                }, optionalStateObj);
 
                 assert.deepEqual(getCompareArr(added), [{
-                    parent: 'item 2', index: 0, name: 'new item'
+                    parent: 'item 2', index: 0, name: 'new item', state: { itemSelected: true }
                 }]);
             });
 
             it('notifies when item added above another', function() {
                 var item1Wrapper = rootWrapper.getChild(0);
 
+                var optionalStateObj = { itemSelected: true };
                 item1Wrapper.addAbove({
                     name: 'new item'
-                });
+                }, optionalStateObj);
 
                 assert.deepEqual(getCompareArr(added), [{
-                    parent: '<root>', index: 0, name: 'new item'
+                    parent: '<root>', index: 0, name: 'new item', state: { itemSelected: true }
                 }]);
             });
 
             it('notifies when item added below another', function() {
                 var item1Wrapper = rootWrapper.getChild(0);
 
+                var optionalStateObj = { itemSelected: true };
                 item1Wrapper.addBelow({
                     name: 'new item'
-                });
+                }, optionalStateObj);
 
                 assert.deepEqual(getCompareArr(added), [{
-                    parent: '<root>', index: 1, name: 'new item'
+                    parent: '<root>', index: 1, name: 'new item', state: { itemSelected: true }
                 }]);
             });
         });
