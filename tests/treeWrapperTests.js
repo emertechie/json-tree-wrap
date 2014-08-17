@@ -591,6 +591,30 @@ describe('JsonTree', function() {
                     parent: 'item 2', index: 0, name: 'new item'
                 }]);
             });
+
+            it('notifies when item added above another', function() {
+                var item1Wrapper = rootWrapper.getChild(0);
+
+                item1Wrapper.addAbove({
+                    name: 'new item'
+                });
+
+                assert.deepEqual(getCompareArr(added), [{
+                    parent: '<root>', index: 0, name: 'new item'
+                }]);
+            });
+
+            it('notifies when item added below another', function() {
+                var item1Wrapper = rootWrapper.getChild(0);
+
+                item1Wrapper.addBelow({
+                    name: 'new item'
+                });
+
+                assert.deepEqual(getCompareArr(added), [{
+                    parent: '<root>', index: 1, name: 'new item'
+                }]);
+            });
         });
 
         describe('Remove event', function() {
