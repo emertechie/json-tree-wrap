@@ -1,4 +1,4 @@
-var TreeWrapper = require('../lib/treeWrap.js'),
+var TreeWrapper = require('../lib/treeWrapper.js'),
     _ = require('lodash'),
     assert = require('chai').assert;
 
