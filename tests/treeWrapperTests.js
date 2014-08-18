@@ -229,7 +229,36 @@ describe('JsonTree', function() {
 
     describe('Removing', function() {
 
-        describe('Removing from root item', function() {
+        describe('Removing self', function() {
+
+            it('can remove wrapped item', function() {
+                var json = {
+                    items: [{
+                        name: 'item 1'
+                    },{
+                        name: 'item 2'
+                    },{
+                        name: 'item 3'
+                    }]
+                };
+
+                var treeWrapper = new TreeWrapper();
+                var rootWrapper = treeWrapper.wrap(json);
+                var item2Wrapper = rootWrapper.getChild(1);
+
+                item2Wrapper.remove();
+
+                assert.deepEqual(rootWrapper.unwrap(), {
+                    items: [{
+                        name: 'item 1'
+                    },{
+                        name: 'item 3'
+                    }]
+                });
+            });
+        });
+
+        describe('Removing child from root item', function() {
             var json, rootWrapper;
 
             beforeEach(function() {
@@ -283,7 +312,7 @@ describe('JsonTree', function() {
             });
         });
 
-        describe('Removing from nested item', function() {
+        describe('Removing child from nested item', function() {
             var json, rootWrapper, nestedItemWrapper;
 
             beforeEach(function() {
@@ -645,7 +674,17 @@ describe('JsonTree', function() {
                 rootWrapper = treeWrapper.wrap(json);
             });
 
-            it('notifies when root item removed', function() {
+            it('notifies when item removed', function() {
+                var item2Wrapper = rootWrapper.getChild(1);
+
+                item2Wrapper.remove();
+
+                assert.deepEqual(getCompareArr(removed), [{
+                    parent: '<root>', index: 1, name: 'item 2'
+                }]);
+            });
+
+            it('notifies when root child item removed', function() {
                 rootWrapper.removeChild(0);
 
                 assert.deepEqual(getCompareArr(removed), [{
@@ -653,7 +692,7 @@ describe('JsonTree', function() {
                 }]);
             });
 
-            it('notifies when nested item removed', function() {
+            it('notifies when nested child item removed', function() {
                 var item2Wrapper = rootWrapper.getChild(1);
 
                 item2Wrapper.removeChild(1);
