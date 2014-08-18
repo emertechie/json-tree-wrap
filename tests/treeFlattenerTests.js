@@ -305,6 +305,33 @@ describe('Tree Flattener', function() {
                 ]);
             });
 
+            it('can notify when new wrapper item created', function() {
+                var json = {
+                    items: [{
+                        name: 'item 1'
+                    }]
+                };
+
+                var lastId = 99;
+
+                var treeFlattener = new TreeFlattener(treeWrapper, treeObserver, {
+                    includeRoot: false,
+                    onWrapperCreated: function(wrapper) {
+                        wrapper.id = ++lastId;
+                    }
+                });
+
+                var rootWrapper = treeWrapper.wrap(json);
+                var flattenedItems = treeFlattener.getItems();
+
+                rootWrapper.addChild(1, { name: 'new item' });
+
+                assert.deepEqual(toShallowCompareArr(flattenedItems, 'id'), [
+                    { depth: 1, name: 'item 1', parent: '<root>', id: 100 },
+                    { depth: 1, name: 'new item', parent: '<root>', id: 101 }
+                ]);
+            });
+
             it('can use passthrough state obj to set additional props on flattened item', function() {
                 var json = {
                     items: [{
@@ -313,16 +340,23 @@ describe('Tree Flattener', function() {
                 };
 
                 var treeFlattener = new TreeFlattener(treeWrapper, treeObserver, {
-                    includeRoot: false
+                    includeRoot: false,
+                    onWrapperCreated: function(wrapper, stateObj) {
+                        if (stateObj) {
+                            _.assign(wrapper, stateObj);
+                        }
+                    }
                 });
+
                 var rootWrapper = treeWrapper.wrap(json);
                 var flattenedItems = treeFlattener.getItems();
 
-                rootWrapper.addChild(1, { name: 'new item' }, { edit: true });
+                var optionalStateObj = { selected: true };
+                rootWrapper.addChild(1, { name: 'new item' }, optionalStateObj);
 
-                assert.deepEqual(toShallowCompareArr(flattenedItems, 'edit'), [
-                    { depth: 1, name: 'item 1', parent: '<root>', edit: undefined },
-                    { depth: 1, name: 'new item', parent: '<root>', edit: true }
+                assert.deepEqual(toShallowCompareArr(flattenedItems, 'selected'), [
+                    { depth: 1, name: 'item 1', parent: '<root>', selected: undefined },
+                    { depth: 1, name: 'new item', parent: '<root>', selected: true }
                 ]);
             });
         });
