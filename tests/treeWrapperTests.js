@@ -53,8 +53,24 @@ describe('JsonTree', function() {
                 });
             });
 
-            it('can add item at end', function() {
+            it('can add item at end, via index', function() {
                 rootWrapper.addChild(2, {
+                    name: 'new item'
+                });
+
+                assert.deepEqual(rootWrapper.unwrap(), {
+                    items: [{
+                        name: 'item 1'
+                    },{
+                        name: 'item 2'
+                    },{
+                        name: 'new item'
+                    }]
+                });
+            });
+
+            it('can add item at end, via specific function', function() {
+                rootWrapper.addChildAtEnd({
                     name: 'new item'
                 });
 
