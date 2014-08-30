@@ -89,6 +89,7 @@ var flatItemWrappers = treeFlattener.getItems();
 
 So `flatItemWrappers` from above example would contain:
 
+```js
     [{
         depth: 0,
         item: (ref to 'Root item')
@@ -102,7 +103,7 @@ So `flatItemWrappers` from above example would contain:
         item: (ref to 'Child item 2')
         parent: (ref to 'Child item 1')
     }]
-
+```
 ## Extending the Flat Item Wrappers
 
 The flat item wrapper instances are a handy place to add on additional UI-specific properties, like a temporary item ID or an 'isSelected' state for example, without interfering with the underlying JSON object.
