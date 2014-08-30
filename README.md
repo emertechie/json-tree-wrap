@@ -21,18 +21,17 @@ var json = {
   }]
 };
 
+var observer = new TreeObserver();
 var treeWrapper = new TreeWrapper({
-    onAdd: function(parent, indexInParent, newItem, stateObj) { }
-    // ... other events - see below
+    childrenProp: 'items' // the default
+    observer: observer    // optional observer for changes made via API
 });
 
 var rootItemWrapper = treeWrapper.wrap(json);
-var child1Wrapper = rootItemWrapper.getChild(0);
-
-child1Wrapper.addChild(...)
+rootItemWrapper.addChild(...)
 ```
 
-The TreeWrapper assumes there is always a root item with all children below that.
+Note: TreeWrapper assumes there is always a root item with all children below that.
     
 # TreeFlattener
 
@@ -63,7 +62,7 @@ var flattenedItems = treeFlattener.getItems();
 Each item in `flattenedItems` has the following properties:
 
 Property | Description
-----------------------
+---------|------------
 depth    | 0-based integer of how nested the item is. Root items have depth 1, first level children have depth 1 etc. 
 item     | reference to the item in the underlying JSON object
 parent   | reference to the parent item (null for root items) in the underlying JSON object
@@ -90,8 +89,8 @@ So for example `flattenedItems` from above example would contain:
 
 Constructor with following options:
 
-  - `childrenProp`: Name of the child items property. Defaults to `'items'`
-  - `observer`: An optional `TreeObserver` instance that will be notified when the tree is manipulated via the TreeItemWrapper API.
+  - `childrenProp` Name of the child items property. Defaults to `'items'`
+  - `observer` An optional `TreeObserver` instance that will be notified when the tree is manipulated via the TreeItemWrapper API.
 
 #### `wrap(jsonObject)`
  
@@ -215,22 +214,28 @@ assert.deepEqual(json, {
 
 #### `remove()`
 
-Removes this item from it's parent. Will call `TreeObserver.onRemove` if an observer was configured in the `TreeWrapper` constructor.
+Removes this item from it's parent.
+
+Will call `TreeObserver.onRemove` if an observer was configured in the `TreeWrapper` constructor.
 
 #### `removeChild(index)`
 
-Removes the child item at the given `index`.   
+Removes the child item at the given `index`.
+
 Will call `TreeObserver.onRemove` if an observer was configured in the `TreeWrapper` constructor.
 
 #### `moveChild(removeIndex, insertIndex)`
 
-This form moves a child item from `removeIndex` to `insertIndex`. 
+This form moves a child item under this instance from `removeIndex` to `insertIndex`.
+
 Will call `TreeObserver.onMove` if an observer was configured in the `TreeWrapper` constructor.
 
 #### `moveChild(removeIndex, newParent, newParentInsertIndex)`
 
 This form moves a child item from `removeIndex` under this instance and inserts it at `newParentInsertIndex`
-under the `newParent` `TreeItemWrapper` instance.
+under the `newParent` instance.
+
+Will call `TreeObserver.onMove` if an observer was configured in the `TreeWrapper` constructor.
 
 Example:
 ```js
