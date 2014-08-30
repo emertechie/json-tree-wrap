@@ -1,6 +1,6 @@
 {
   "name": "json-tree-wrap",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Wrappers for hierarchical JSON objects that support manipulation, events, traversal and dynamic flattening to an array",
   "main": "lib/treeWrapper.js",
   "directories": {
