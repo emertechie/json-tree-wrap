@@ -717,7 +717,7 @@ describe('Tree Flattener', function() {
                 var rootItemFlatWrapper = flattenedItems[0];
 
                 // Get a wrapper for root item and use it to add new child:
-                var recreatedRootWrapper = treeWrapper.getWrapper(rootItemFlatWrapper.item, rootItemFlatWrapper.parent);
+                var recreatedRootWrapper = treeWrapper.createItemWrapper(rootItemFlatWrapper.item, rootItemFlatWrapper.parent);
                 recreatedRootWrapper.addChild(1, { name: 'new item 1' });
 
                 assert.deepEqual(toShallowCompareArr(flattenedItems), [
@@ -757,7 +757,7 @@ describe('Tree Flattener', function() {
                 var item2FlatWrapper = flattenedItems[2];
 
                 // Get a wrapper for root item and use it to add new child:
-                var recreatedItem2Wrapper = treeWrapper.getWrapper(item2FlatWrapper.item, item2FlatWrapper.parent);
+                var recreatedItem2Wrapper = treeWrapper.createItemWrapper(item2FlatWrapper.item, item2FlatWrapper.parent);
                 recreatedItem2Wrapper.addChild(0, { name: 'new item 1' });
 
                 // Verify what flat items are like now:
