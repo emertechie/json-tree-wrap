@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/emertechie/json-tree-wrap.svg)](https://travis-ci.org/emertechie/json-tree-wrap)
+
 # json-tree-wrap
 
 Wrappers for hierarchical JSON objects that support manipulation, events, traversal
