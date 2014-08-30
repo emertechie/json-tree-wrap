@@ -22,11 +22,13 @@ Or you can just include the following script files to set up 'TreeWrapper', 'Tre
   <script src="components/json-tree-wrap/lib/treeFlattener.js"></script>
 ```
 
+# Overview
 
-# TreeWrapper
+## TreeWrapper
 
-Core type to wrap a JSON object:
+The `TreeWrapper` class is the core type used to wrap a JSON object. It returns `TreeItemWrapper` instances which have methods to add/move/remove child items under that item. An optional `TreeObserver` instance can be used to listen for modifications made via the API and fire callbacks.
 
+### TreeWrapper Basic Usage
 ```js
 var json = {
   name: 'Root item',
@@ -48,14 +50,23 @@ var rootItemWrapper = treeWrapper.wrap(json);
 rootItemWrapper.addChild(...)
 ```
 
-Note: TreeWrapper assumes there is always a root item with all children below that.
-    
-# TreeFlattener
+The `TreeWrapper` type assumes each JSON object it wraps has a single root item as shown in example above. The `treeWrapper.wrap` function returns a `TreeItemWrapper` for that root item. You then use the `getChild` function to drill down and get `TreeItemWrapper` instances for other items in the tree.
 
-Projects a hierarchical JSON object to a flat list of items and updates that list dynamically 
-as the underlying object is manipulated via the `TreeItemWrapper` type. Very useful for UI 
-binding. 
+If you have a reference to an item in the tree and it's parent, you can create a `TreeItemWrapper` instance at any time by calling the `TreeWrapper`'s `createItemWrapper` function.
 
+## TreeFlattener
+
+The `TreeFlattener` class uses the `TreeObserver` to dynamically maintain a flat `Array` of item wrappers for each item in the underlying hierarchical JSON object. Each flat item wrapper has the following properties:
+
+Property | Description
+---------|------------
+depth    | 0-based integer of how nested the item is. Root items have depth 0, first level children have depth 1 etc. 
+item     | reference to the item in the underlying JSON object
+parent   | reference to the parent item (null for root items) in the underlying JSON object
+
+You can pass the `item` and `parent` references into the `TreeWrapper` `createItemWrapper` function mentioned above to create a `TreeItemWrapper` instance for any item in the flat `Array`.
+
+### Basic TreeFlattener Example:
 ```js
 var json = {
   name: 'Root item',
@@ -73,18 +84,10 @@ var treeFlattener = new TreeFlattener(treeWrapper, treeObserver);
 
 treeWrapper.wrap(json);
 
-var flattenedItems = treeFlattener.getItems();
+var flatItemWrappers = treeFlattener.getItems();
 ```
 
-Each item in `flattenedItems` has the following properties:
-
-Property | Description
----------|------------
-depth    | 0-based integer of how nested the item is. Root items have depth 1, first level children have depth 1 etc. 
-item     | reference to the item in the underlying JSON object
-parent   | reference to the parent item (null for root items) in the underlying JSON object
- 
-So for example `flattenedItems` from above example would contain:
+So `flatItemWrappers` from above example would contain:
 
     [{
         depth: 0,
@@ -100,6 +103,87 @@ So for example `flattenedItems` from above example would contain:
         parent: (ref to 'Child item 1')
     }]
 
+## Extending the Flat Item Wrappers
+
+The flat item wrapper instances are a handy place to add on additional UI-specific properties, like a temporary item ID or an 'isSelected' state for example, without interfering with the underlying JSON object.
+
+#### Assigning a temporary ID
+
+```
+var json = {
+  name: 'Root item',
+  items: [{
+    name: 'Child item 1'
+  }]
+};
+
+var treeObserver = new TreeObserver();
+var treeWrapper = new TreeWrapper({ observer: treeObserver });
+
+var lastId = 99;
+var treeFlattener = new TreeFlattener(treeWrapper, treeObserver, {
+    onWrapperCreated: function(wrapper) {
+        wrapper.id = ++lastId;
+    }
+});
+
+treeWrapper.wrap(json);
+
+var flatItemWrappers = treeFlattener.getItems();
+```
+
+`flatItemWrappers` would contain:
+
+    [{
+        id: 100,
+        depth: 0,
+        item: (ref to 'Root item')
+        parent: null
+    }, {
+        id: 101,
+        depth: 1,
+        item: (ref to 'Child item 1')
+        parent: (ref to 'Root item')
+    }]
+
+#### Set an 'isSelected' flag for all new items
+
+```
+var json = {
+  name: 'Root item',
+  items: []
+};
+
+var treeObserver = new TreeObserver();
+var treeWrapper = new TreeWrapper({ observer: treeObserver });
+
+var lastId = 99;
+var treeFlattener = new TreeFlattener(treeWrapper, treeObserver, {
+    onWrapperCreated: function(wrapper, stateObj) {
+        wrapper.isSelected = stateObj ? !!stateObj.isSelected : false;
+    }
+});
+
+var rootWrapper = treeWrapper.wrap(json);
+
+var flatItemWrappers = treeFlattener.getItems();
+
+rootWrapper.addChild(0, { name: 'New item' }, { isSelected: true });
+```
+
+`flatItemWrappers` would contain:
+
+    [{
+        isSelected: false,
+        depth: 0,
+        item: (ref to 'Root item')
+        parent: null
+    }, {
+        isSelected: true,
+        depth: 1,
+        item: (ref to 'New item')
+        parent: (ref to 'Root item')
+    }]
 
 # TreeObserver
 
@@ -109,15 +193,14 @@ Simple class that enables notifications when changes made to underlying JSON obj
 
 Constructor
 
-#### attach(delegatesObj)
+#### attach(delegateObj)
 
-`delegatesObj` can define the following optional properties. 
+`delegateObj` can define the following optional properties. 
 
   - `onInit` `function(parent, index, item, depth)` onInit is called for each existing item in the JSON object when it is first wrapped.
   - `onAdd` `function(parent, index, item, stateObj)`  
   - `onRemove` `(parent, index, item)`  
   - `onMove` `(oldParent, oldIndex, newParent, newIndex, item)` 
-
 
 ```js
 var observer = new TreeObserver();
@@ -140,11 +223,15 @@ Constructor with following options:
 
 #### `wrap(jsonObject)`
  
-Returns a TreeItemWrapper that can be used to traverse / manipulate the _root_ item. 
+Returns a `TreeItemWrapper` that can be used to traverse / manipulate the _root_ item. 
 From the root item you can navigate to all child items via `getChildItem` function.
  
 If a `TreeObserver` instance is passed to the `TreeWrapper` constructor, then `wrap`
 will also `traverse` the tree and call `TreeObserver.onInit` for each item.  
+
+#### `createItemWrapper(item, parent)`
+
+Returns a `TreeItemWrapper` instance for the given item and it's parent.
 
 #### `traverse(jsonObject, callback)`
 
@@ -317,9 +404,18 @@ Returns the underlying JSON object.
 
 Traverses the underlying hierarchical jsonObject and calls `callback` for each item encountered.   
 
-# TreeFlattener Usage
+# TreeFlattener API
 
-TODO (for now, take a look at the [tests](tests/treeFlattenerTests.js))
+#### new TreeFlattener(treeWrapper, treeObserver, options)
+
+Constructor with following options:
+
+  - `includeRoot` Whether the root item is included in the flattened items or not
+  - `onWrapperCreated` `function(itemWrapper, stateObj)` Callback triggered each time a new wrapper is created, via `TreeObserver` callbacks. If wrapper created as a result of an `onInit` `TreeObserver` callback then `stateObj` will be null. If called as a result of `onAdd`, then the optional `stateObj` will be passed through.
+
+#### getItems()
+
+Returns a reference to the array of flattened items being maintained by the `TreeFlattener` instance. This array will be updated as items are added/removed/moved via the `TreeItemWrapper` API.
 
 # Licence
 MIT
