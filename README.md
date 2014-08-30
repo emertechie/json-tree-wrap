@@ -109,7 +109,7 @@ The flat item wrapper instances are a handy place to add on additional UI-specif
 
 #### Assigning a temporary ID
 
-```
+```js
 var json = {
   name: 'Root item',
   items: [{
@@ -134,6 +134,7 @@ var flatItemWrappers = treeFlattener.getItems();
 
 `flatItemWrappers` would contain:
 
+```js
     [{
         id: 100,
         depth: 0,
@@ -145,10 +146,11 @@ var flatItemWrappers = treeFlattener.getItems();
         item: (ref to 'Child item 1')
         parent: (ref to 'Root item')
     }]
+```
 
 #### Set an 'isSelected' flag for all new items
 
-```
+```js
 var json = {
   name: 'Root item',
   items: []
@@ -173,6 +175,7 @@ rootWrapper.addChild(0, { name: 'New item' }, { isSelected: true });
 
 `flatItemWrappers` would contain:
 
+```js
     [{
         isSelected: false,
         depth: 0,
@@ -184,8 +187,9 @@ rootWrapper.addChild(0, { name: 'New item' }, { isSelected: true });
         item: (ref to 'New item')
         parent: (ref to 'Root item')
     }]
+```
 
-# TreeObserver
+# TreeObserver API
 
 Simple class that enables notifications when changes made to underlying JSON object via the `TreeItemWrapper API`.
 
