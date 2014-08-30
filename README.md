@@ -4,7 +4,22 @@ Wrappers for hierarchical JSON objects that support manipulation, events, traver
 and dynamic flattening to an array - useful for UI binding.
 
 # Install
-Todo
+
+Available via npm and bower
+
+`npm install json-tree-wrap`
+
+`bower install json-tree-wrap`
+
+Or you can just include the following script files to set up 'TreeWrapper', 'TreeFlattener' and 'TreeObserver' browser globals:
+
+```html
+  <script src="components/json-tree-wrap/lib/polyfills.js"></script>
+  <script src="components/json-tree-wrap/lib/treeWrapper.js"></script>
+  <script src="components/json-tree-wrap/lib/treeObserver.js"></script>
+  <script src="components/json-tree-wrap/lib/treeFlattener.js"></script>
+```
+
 
 # TreeWrapper
 
@@ -82,6 +97,35 @@ So for example `flattenedItems` from above example would contain:
         item: (ref to 'Child item 2')
         parent: (ref to 'Child item 1')
     }]
+
+
+# TreeObserver
+
+Simple class that enables notifications when changes made to underlying JSON object via the `TreeItemWrapper API`.
+
+#### new TreeObserver()
+
+Constructor
+
+#### attach(delegatesObj)
+
+`delegatesObj` can define the following optional properties. 
+
+  - `onInit` `function(parent, index, item, depth)` onInit is called for each existing item in the JSON object when it is first wrapped.
+  - `onAdd` `function(parent, index, item, stateObj)`  
+  - `onRemove` `(parent, index, item)`  
+  - `onMove` `(oldParent, oldIndex, newParent, newIndex, item)` 
+
+
+```js
+var observer = new TreeObserver();
+observer.attach({
+    onAdd: function(parent, index, item, stateObj) {
+    }
+    // ...
+});
+
+```
 
 # TreeWrapper API
 
